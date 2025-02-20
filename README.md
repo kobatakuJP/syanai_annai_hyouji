@@ -9,4 +9,4 @@ http://openlab.ring.gr.jp/efont/shinonome/
 → http://openlab.ring.gr.jp/efont/dist/shinonome/
 → http://openlab.ring.gr.jp/efont/dist/shinonome/shinonome-0.9.11p1.tar.bz2
 上記を解凍し、いくつかある中の「shnmk14i.bdf」というファイルをもとにやってみる。
-
+→ iはイタリックだこれ！無印の「shnmk14.bpf」を使うっす

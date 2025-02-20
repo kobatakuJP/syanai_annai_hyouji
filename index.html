@@ -124,7 +124,7 @@
         }
         /** bdfファイルをDLして解析したフォントオブジェクトを返す */
         async function initialFont() {
-            const response = await fetch('font/shnmk14i.bdf');  // サーバー上のBDFファイルを取得
+            const response = await fetch('font/shnmk14.bdf');  // サーバー上のBDFファイルを取得
             if (!response.ok) {
                 throw new Error('ファイルの読み込みに失敗しました');
             }
@@ -140,7 +140,7 @@
                 return;
             }
             for (let [r, row] of bitmap.entries()) {
-                const bits = parseInt(row, 16).toString(2).padStart(8, '0');
+                const bits = parseInt(row, 16).toString(2).padStart(16, '0');
                 for (let [c, char] of Array.from(bits).entries()) {
                     if (char === '1') {
                         document.getElementById(`${r}-${c}`).classList = ["led-orange"]
