@@ -18,7 +18,7 @@
 </head>
 
 <body class="flex items-center justify-center min-h-screen w-screen bg-gray-200">
-    <div id="app" class="bg-black flex-none"></div>
+    <div id="app" class="bg-gray-700 flex-none border-solid" style="border-color: black;"></div>
     </div>
 
     <script>
@@ -28,9 +28,10 @@
             const height = Math.min(window.innerWidth, window.innerHeight);
             const isLandscape = window.innerWidth >= window.innerHeight;
 
-            let appWidth, appHeight;
-            appWidth = width * 0.95;
+            let appWidth, appHeight, borderWidth;
+            appWidth = width * 0.9;
             appHeight = appWidth * (32 / 160);
+            borderWidth = appWidth * 0.02;
             if (isLandscape) {
                 // 横長の場合: 横を基準にスケール
                 app.classList.remove("rotate-90");
@@ -41,6 +42,7 @@
 
             app.style.width = `${appWidth}px`;
             app.style.height = `${appHeight}px`;
+            app.style.borderWidth = `${borderWidth}px`
         }
 
         window.addEventListener('resize', updateAppSize);
