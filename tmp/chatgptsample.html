@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ビットマップフォントの表示</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            margin: 20px;
+        }
+        td {
+            width: 12px;
+            height: 12px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+        }
+        td.on {
+            background-color: black;
+        }
+    </style>
+</head>
+<body>
+
+<h1>ビットマップフォント表示</h1>
+
+<div id="font-container">
+    <!-- フォントのグリッドをここに表示 -->
+</div>
+
+<script>
+// BDFフォントファイルの一部例（サンプル）
+const bdfData = `
+STARTFONT 2.1
+FONT -Adobe-Helvetica-Medium-R-Normal--12-120-75-75-P-69-ISO10646-1
+SIZE 12 75 75
+FONTBOUNDINGBOX 8 12 0 -1
+STARTPROPERTIES 2
+COMMENT Copyright (c) 1989 Adobe Systems Incorporated.
+ENDPROPERTIES
+CHARS 1
+STARTCHAR A
+ENCODING 65
+SWIDTH 500 0
+DWIDTH 8 0
+BBX 8 12 0 -1
+BITMAP
+0x3E
+0x63
+0x63
+0x63
+0x63
+0x63
+0x63
+0x3E
+ENDCHAR
+ENDFONT
+`;
+
+// BDFフォントを解析する関数
+function parseBDF(bdf) {
+    const font = {};
+    const lines = bdf.split('\n');
+    let currentChar = null;
+
+    for (let line of lines) {
+        line = line.trim();
+        if (line.startsWith('STARTCHAR')) {
+            currentChar = {};
+        }
+        if (line.startsWith('ENCODING')) {
+            currentChar.encoding = parseInt(line.split(' ')[1], 10);
+        }
+        if (line.startsWith('BITMAP')) {
+            currentChar.bitmap = [];
+            let i = lines.indexOf(line) + 1;
+            while (lines[i] && !lines[i].startsWith('ENDCHAR')) {
+                currentChar.bitmap.push(lines[i].trim());
+                i++;
+            }
+        }
+        if (line.startsWith('ENDCHAR') && currentChar) {
+            font[currentChar.encoding] = currentChar.bitmap;
+            currentChar = null;
+        }
+    }
+
+    return font;
+}
+
+// BDFフォントを解析
+const font = parseBDF(bdfData);
+
+// HTMLグリッドを作成する関数
+function renderChar(charCode) {
+    const bitmap = font[charCode];
+    if (!bitmap) {
+        console.error(`Character with encoding ${charCode} not found.`);
+        return;
+    }
+
+    const grid = document.createElement('table');
+    for (let row of bitmap) {
+        const tr = document.createElement('tr');
+        for (let char of row) {
+            const td = document.createElement('td');
+            if (char === '1') {
+                td.classList.add('on');
+            }
+            tr.appendChild(td);
+        }
+        grid.appendChild(tr);
+    }
+
+    return grid;
+}
+
+// 文字「A」を描画
+const fontContainer = document.getElementById('font-container');
+const charA = renderChar(65);  // 'A'の文字コードは65
+fontContainer.appendChild(charA);
+</script>
+
+</body>
+</html>

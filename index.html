@@ -54,21 +54,29 @@
     </div>
 
     <script>
+        console.log("reading html inner script")
+        let font = {}
         function initTable() {
             const columnNum = 32;
             const rowNum = 160;
             const tbody = document.getElementById("app___body");
-            for (let c = 0; c < columnNum; c++) {
+            for (let r = 0; r < rowNum; c++) {
                 const tr = document.createElement("tr");
                 tbody.appendChild(tr);
-                for (let r = 0; r < rowNum; r++) {
+                for (let c = 0; c < columnNum; r++) {
                     const td = document.createElement("td");
                     const div = document.createElement("div");
                     div.classList = ["led-off"]
+                    div.id = `${r}-${c}`;
+                    div.onclick = ledClick
                     td.appendChild(div);
                     tr.appendChild(td);
                 }
             }
+        }
+        function ledClick(d) {
+            console.log(d)
+            d.target.classList = ["led-orange"]
         }
         function updateAppSize() {
             const app = document.getElementById('app');
@@ -92,9 +100,66 @@
             app.style.height = `${appHeight}px`;
             app.style.borderWidth = `${borderWidth}px`
         }
-        initTable()
+        function parseBDF(bdf) {
+            const font = {};
+            const lines = bdf.split('\n');
+            let currentChar = null;
+
+            for (let line of lines) {
+                line = line.trim();
+                if (line.startsWith('STARTCHAR')) {
+                    currentChar = {};
+                }
+                if (line.startsWith('ENCODING')) {
+                    currentChar.encoding = parseInt(line.split(' ')[1], 10);
+                }
+                if (line.startsWith('BITMAP')) {
+                    currentChar.bitmap = [];
+                    let i = lines.indexOf(line) + 1;
+                    while (lines[i] && !lines[i].startsWith('ENDCHAR')) {
+                        currentChar.bitmap.push(lines[i].trim());
+                        i++;
+                    }
+                }
+                if (line.startsWith('ENDCHAR') && currentChar) {
+                    font[currentChar.encoding] = currentChar.bitmap;
+                    currentChar = null;
+                }
+            }
+            return font;
+        }
+        /** bdfファイルをDLして解析したフォントオブジェクトを返す */
+        async function initialFont() {
+            const response = await fetch('font/shnmk14i.bdf');  // サーバー上のBDFファイルを取得
+            if (!response.ok) {
+                throw new Error('ファイルの読み込みに失敗しました');
+            }
+            const bdfData = await response.text();  // ファイル内容をテキストとして読み込む
+            // BDFフォントを解析
+            font = parseBDF(bdfData);
+        }
+        // HTMLグリッドを作成する関数
+        function renderChar(charCode) {
+            const bitmap = font[charCode];
+            if (!bitmap) {
+                console.error(`Character with encoding ${charCode} not found.`);
+                return;
+            }
+            for (let [r, row] of bitmap.entries()) {
+                const bits = parseInt(row, 16).toString(2).padStart(8, '0');
+                for (let [c, char] of Array.from(bits).entries()) {
+                    if (char === '1') {
+                        document.getElementById(`${r}-${c}`).classList = ["led-orange"]
+                    } else {
+                        document.getElementById(`${r}-${c}`).classList = ["led-green"]
+                    }
+                }
+            }
+        }
+        initialFont().then(() => renderChar(0x3a66));
         window.addEventListener('resize', updateAppSize);
         updateAppSize();
+        initTable()
     </script>
 </body>
 
