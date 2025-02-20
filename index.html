@@ -190,8 +190,20 @@
             updateAppSize();
             initTable()
         }
+        offsetRightForScroll = 0;
+        function scroll(str, offsetDown, offsetRightEnd) {
+            // if (offsetRightForScroll < offsetRightEnd) offsetRightForScroll = 160;
+            // renderStr(str, offsetDown, offsetRightForScroll)
+            // offsetRightForScroll -= 1;
+            // requestAnimationFrame(scroll.bind(str, offsetDown, offsetRightEnd))
+            setInterval(() => {
+                if (offsetRightForScroll < offsetRightEnd) offsetRightForScroll = 160;
+                renderStr(str, offsetDown, offsetRightForScroll)
+                offsetRightForScroll -= 1;
+            }, 1000 / 60);
+        }
         Promise.all([initialFont(), initialJISMap(), initialDisp()])
-            .then(() => renderStr("次は東京", 0, 20));
+            .then(() => scroll("次は東京", 0, "次は東京".length * 16 * -1));
     </script>
 </body>
 
