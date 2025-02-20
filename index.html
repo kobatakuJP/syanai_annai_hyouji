@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>横長アプリ</title>
+    <style>
+        :root {
+            --aspect-ratio: 160 / 32;
+        }
+
+        .rotate-90 {
+            transform: rotate(90deg);
+        }
+    </style>
+</head>
+
+<body class="flex items-center justify-center min-h-screen w-screen bg-gray-200">
+    <div id="app" class="bg-black flex-none"></div>
+    </div>
+
+    <script>
+        function updateAppSize() {
+            const app = document.getElementById('app');
+            const width = Math.max(window.innerWidth, window.innerHeight);
+            const height = Math.min(window.innerWidth, window.innerHeight);
+            const isLandscape = window.innerWidth >= window.innerHeight;
+
+            let appWidth, appHeight;
+            appWidth = width * 0.95;
+            appHeight = appWidth * (32 / 160);
+            if (isLandscape) {
+                // 横長の場合: 横を基準にスケール
+                app.classList.remove("rotate-90");
+            } else {
+                // 縦長の場合: 90度回転し、短辺を基準にスケール
+                app.classList.add("rotate-90");
+            }
+
+            app.style.width = `${appWidth}px`;
+            app.style.height = `${appHeight}px`;
+        }
+
+        window.addEventListener('resize', updateAppSize);
+        updateAppSize();
+    </script>
+</body>
+
+</html>
