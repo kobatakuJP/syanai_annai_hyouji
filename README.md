@@ -10,6 +10,7 @@ LED式の社内案内表示を再現してみる
 - → http://openlab.ring.gr.jp/efont/dist/shinonome/shinonome-0.9.11p1.tar.bz2
 - 上記を解凍し、いくつかある中の「shnmk14i.bdf」というファイルをもとにやってみる。
 - → iはイタリックだこれ！無印の「shnmk14.bpf」を使うっす
+  - 無印は縦14＊横16だった（イタリックは横32）
 - JIS(SJISですらない)のコード定義に沿っている・・・UTF-8からの変換が必要。これはつらい。
 - 以下の対応表を持ってきた
   - http://ash.jp/code/jis0213_list.htm　で言及されてる以下のファイル

@@ -155,8 +155,12 @@
             const jismap = await response.text();  // ファイル内容をテキストとして読み込む
             parseJISMap(jismap)
         }
-        // HTMLグリッドを作成する関数
-        function renderChar(charCode) {
+        /**
+         * @param charCode JISの文字コード
+         * @param offsetDown 下に何マスずれるか
+         * @param offsetRight 右に何マスずれるか
+         */
+        function renderChar(charCode, offsetDown, offsetRight) {
             const bitmap = font[charCode];
             if (!bitmap) {
                 console.error(`Character with encoding ${charCode} not found.`);
@@ -165,12 +169,20 @@
             for (let [r, row] of bitmap.entries()) {
                 const bits = parseInt(row, 16).toString(2).padStart(16, '0');
                 for (let [c, char] of Array.from(bits).entries()) {
+                    const targetCell = document.getElementById(`${r + offsetDown}-${c + offsetRight}`);
+                    if (!targetCell) continue;
                     if (char === '1') {
-                        document.getElementById(`${r}-${c}`).classList = ["led-orange"]
+                        targetCell.classList = ["led-orange"]
                     } else {
-                        document.getElementById(`${r}-${c}`).classList = ["led-off"]
+                        targetCell.classList = ["led-off"]
                     }
                 }
+            }
+        }
+        function renderStr(str, offsetDown, offsetRight) {
+            const chars = Array.from(str);
+            for (let i = 0; i < chars.length; i++) {
+                renderChar(fontMap[chars[i].charCodeAt()], 0 + offsetDown, i * 16 + offsetRight); // マジックナンバー使ってしまった。横幅。
             }
         }
         async function initialDisp() {
@@ -178,7 +190,8 @@
             updateAppSize();
             initTable()
         }
-        Promise.all([initialFont(), initialJISMap(), initialDisp()]).then(() => renderChar(fontMap["東".charCodeAt()]));
+        Promise.all([initialFont(), initialJISMap(), initialDisp()])
+            .then(() => renderStr("次は東京", 0, 20));
     </script>
 </body>
 
