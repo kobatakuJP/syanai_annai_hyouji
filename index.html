@@ -99,8 +99,8 @@
             const lines = bdf.split('\n');
             let currentChar = null;
 
-            for (let line of lines) {
-                line = line.trim();
+            for (let i = 0; i < lines.length; i++) {
+                line = lines[i].trim();
                 if (line.startsWith('STARTCHAR')) {
                     currentChar = {};
                 }
@@ -108,17 +108,17 @@
                     currentChar.encoding = parseInt(line.split(' ')[1], 10);
                 }
                 if (line.startsWith('BITMAP')) {
+                    // BITMAP情報入れる箇所、ここからENDCHARまで走り抜ける
                     currentChar.bitmap = [];
-                    let i = lines.indexOf(line) + 1;
+                    // ここからもiが増える危険実装
+                    i++; // BITMAP行はスキップする
                     while (lines[i] && !lines[i].startsWith('ENDCHAR')) {
                         currentChar.bitmap.push(lines[i].trim());
                         i++;
                     }
-                }
-                if (line.startsWith('ENDCHAR') && currentChar) {
                     font[currentChar.encoding] = currentChar.bitmap;
                     currentChar = null;
-                }
+                }                
             }
             return font;
         }
