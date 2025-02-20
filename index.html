@@ -22,10 +22,25 @@
         }
 
         td div {
-            width: 98%;
-            height: 98%;
-            background-color: pink;
+            width: 90%;
+            height: 90%;
             border-radius: 50%;
+        }
+
+        .led-off {
+            background: oklch(0.373 0.034 259.733);
+        }
+
+        .led-orange {
+            background: linear-gradient(red 0%, red 50%, green 50%, green 100%);
+        }
+
+        .led-green {
+            background: linear-gradient(oklch(0.373 0.034 259.733) 0%, oklch(0.373 0.034 259.733) 50%, green 50%, green 100%);
+        }
+
+        .led-red {
+            background: linear-gradient(red 0%, red 50%, oklch(0.373 0.034 259.733) 50%, oklch(0.373 0.034 259.733) 100%);
         }
     </style>
 </head>
@@ -49,7 +64,7 @@
                 for (let r = 0; r < rowNum; r++) {
                     const td = document.createElement("td");
                     const div = document.createElement("div");
-                    div.classList = ["bg-gray-700"]
+                    div.classList = ["led-off"]
                     td.appendChild(div);
                     tr.appendChild(td);
                 }
