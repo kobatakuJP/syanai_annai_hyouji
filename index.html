@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
+
     <title>横長アプリ</title>
     <style>
         :root {
@@ -55,6 +56,8 @@
 
     <script>
         console.log("reading html inner script")
+        let font = {};
+        let fontMap = {};
         function initTable() {
             const rowNum = 32;
             const columnNum = 160;
@@ -95,7 +98,6 @@
             app.style.borderWidth = `${borderWidth}px`
         }
         function parseBDF(bdf) {
-            const font = {};
             const lines = bdf.split('\n');
             let currentChar = null;
 
@@ -118,9 +120,8 @@
                     }
                     font[currentChar.encoding] = currentChar.bitmap;
                     currentChar = null;
-                }                
+                }
             }
-            return font;
         }
         /** bdfファイルをDLして解析したフォントオブジェクトを返す */
         async function initialFont() {
@@ -130,7 +131,29 @@
             }
             const bdfData = await response.text();  // ファイル内容をテキストとして読み込む
             // BDFフォントを解析
-            font = parseBDF(bdfData);
+            parseBDF(bdfData);
+        }
+        function parseJISMap(jismap) {
+            const lines = jismap.split('\n');
+            for (let i = 23/*24行目からデータが始まる*/; i < lines.length; i++) {
+                const line = lines[i].trim();
+                const splitline = line.split("\t");
+                const jiscodebase = splitline[0];
+                const utfcodebase = splitline[1];
+                if (!jiscodebase && !utfcodebase) continue;
+                let [men, jiscodeTmp] = jiscodebase.split("-");
+                const jiscode = men === "4" ? "2" + jiscodeTmp : jiscodeTmp; // よくわからんが変換txt敵には3面と4面があり、4面のときbpf上は2を先頭につけているように見える。
+                const utfcode = utfcodebase.split("+")[1];
+                fontMap[parseInt(utfcode, 16)] = parseInt(jiscode, 16)
+            }
+        }
+        async function initialJISMap() {
+            const response = await fetch('font/jisx0213-2004-std.txt');
+            if (!response.ok) {
+                throw new Error('ファイルの読み込みに失敗しました');
+            }
+            const jismap = await response.text();  // ファイル内容をテキストとして読み込む
+            parseJISMap(jismap)
         }
         // HTMLグリッドを作成する関数
         function renderChar(charCode) {
@@ -145,15 +168,17 @@
                     if (char === '1') {
                         document.getElementById(`${r}-${c}`).classList = ["led-orange"]
                     } else {
-                        document.getElementById(`${r}-${c}`).classList = ["led-green"]
+                        document.getElementById(`${r}-${c}`).classList = ["led-off"]
                     }
                 }
             }
         }
-        initialFont().then(() => renderChar(0x3a66));
-        window.addEventListener('resize', updateAppSize);
-        updateAppSize();
-        initTable()
+        async function initialDisp() {
+            window.addEventListener('resize', updateAppSize);
+            updateAppSize();
+            initTable()
+        }
+        Promise.all([initialFont(), initialJISMap(), initialDisp()]).then(() => renderChar(fontMap["東".charCodeAt()]));
     </script>
 </body>
 
